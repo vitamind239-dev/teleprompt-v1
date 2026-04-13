@@ -120,21 +120,22 @@
 
       <textarea id="scriptInput">Paste your script here.
 
-This is v.1.0. - Simple. Useful. 
+This is version one.
+Simple.
+Useful.
 Published on GitHub Pages.</textarea>
 
       <div class="controls">
         <div class="button-row">
-          <button id="startBtn">Start</button>
-          <button id="pauseBtn">Pause</button>
+          <button id="toggleBtn">Start</button>
           <button id="resetBtn">Reset</button>
           <button id="fullscreenBtn">Full screen</button>
         </div>
 
         <label>
           Speed
-          <input id="speedInput" type="range" min="10" max="200" value="50">
-          <span class="value" id="speedValue">50 px/sec</span>
+          <input id="speedInput" type="range" min="25" max="200" value="40">
+          <span class="value" id="speedValue">40 px/sec</span>
         </label>
 
         <label>
@@ -161,8 +162,7 @@ Published on GitHub Pages.</textarea>
     const scriptDisplay = document.getElementById('scriptDisplay');
     const stage = document.getElementById('stage');
 
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
+    const toggleBtn = document.getElementById('toggleBtn');
     const resetBtn = document.getElementById('resetBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
@@ -200,8 +200,7 @@ Published on GitHub Pages.</textarea>
 
       const reachedBottom = stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 2;
       if (reachedBottom) {
-        isRunning = false;
-        lastTime = 0;
+        pauseScrolling();
         return;
       }
 
@@ -212,12 +211,14 @@ Published on GitHub Pages.</textarea>
       if (isRunning) return;
       isRunning = true;
       lastTime = 0;
+      toggleBtn.textContent = 'Pause';
       requestAnimationFrame(tick);
     }
 
     function pauseScrolling() {
       isRunning = false;
       lastTime = 0;
+      toggleBtn.textContent = 'Start';
     }
 
     function resetScrolling() {
@@ -237,8 +238,14 @@ Published on GitHub Pages.</textarea>
     speedInput.addEventListener('input', updateSpeed);
     fontInput.addEventListener('input', updateFont);
 
-    startBtn.addEventListener('click', startScrolling);
-    pauseBtn.addEventListener('click', pauseScrolling);
+    toggleBtn.addEventListener('click', () => {
+      if (isRunning) {
+        pauseScrolling();
+      } else {
+        startScrolling();
+      }
+    });
+
     resetBtn.addEventListener('click', resetScrolling);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
 
