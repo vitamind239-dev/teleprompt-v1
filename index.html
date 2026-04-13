@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,32 +124,32 @@ Esta es la versión uno.
 Sencilla.
 Útil de verdad.
 Montada en GitHub Pages.
-       ~~ Dimitry ;-)
+        ~~ Dimitry S. ;-)
       
       </textarea>
 
       <div class="controls">
         <div class="button-row">
-          <button id="toggleBtn">Start</button>
-          <button id="resetBtn">Reset</button>
-          <button id="fullscreenBtn">Full screen</button>
+          <button id="toggleBtn">Iniciar</button>
+          <button id="resetBtn">Reiniciar</button>
+          <button id="fullscreenBtn">Pantalla completa</button>
         </div>
 
         <label>
-          Speed
+          Velocidad
           <input id="speedInput" type="range" min="25" max="200" value="40">
-          <span class="value" id="speedValue">40 px/sec</span>
+          <span class="value" id="speedValue">40 px/seg</span>
         </label>
 
         <label>
-          Font size
+          Tamaño de letra
           <input id="fontInput" type="range" min="24" max="72" value="40">
           <span class="value" id="fontValue">40 px</span>
         </label>
       </div>
 
       <div class="hint">
-        Paste text on the left. Read from the right.
+        Pega el texto a la izquierda. Lee a la derecha.
       </div>
     </div>
 
@@ -179,11 +179,11 @@ Montada en GitHub Pages.
     let lastTime = 0;
 
     function updateText() {
-      scriptDisplay.textContent = scriptInput.value || 'Paste your script here.';
+      scriptDisplay.textContent = scriptInput.value || 'Pega aquí tu texto.';
     }
 
     function updateSpeed() {
-      speedValue.textContent = speedInput.value + ' px/sec';
+      speedValue.textContent = speedInput.value + ' px/seg';
     }
 
     function updateFont() {
@@ -214,14 +214,14 @@ Montada en GitHub Pages.
       if (isRunning) return;
       isRunning = true;
       lastTime = 0;
-      toggleBtn.textContent = 'Pause';
+      toggleBtn.textContent = 'Pausar';
       requestAnimationFrame(tick);
     }
 
     function pauseScrolling() {
       isRunning = false;
       lastTime = 0;
-      toggleBtn.textContent = 'Start';
+      toggleBtn.textContent = 'Iniciar';
     }
 
     function resetScrolling() {
