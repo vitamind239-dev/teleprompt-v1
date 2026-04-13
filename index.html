@@ -41,6 +41,35 @@
       font-size: 28px;
     }
 
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .lang-btn {
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #555;
+      border-radius: 8px;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .lang-btn.active {
+      background: #fff;
+      color: #111;
+    }
+
     textarea {
       width: 100%;
       height: 48vh;
@@ -91,11 +120,12 @@
 
     .stage {
       height: calc(100vh - 32px);
-      overflow: hidden;
+      overflow: auto;
       border: 1px solid #222;
       border-radius: 12px;
       background: #000;
       position: relative;
+      -webkit-overflow-scrolling: touch;
     }
 
     .script {
@@ -111,45 +141,127 @@
       font-size: 13px;
       color: #aaa;
     }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .left {
+        border-right: 0;
+        border-bottom: 1px solid #333;
+      }
+
+      .right {
+        padding-top: 0;
+      }
+
+      textarea {
+        height: 30vh;
+        font-size: 18px;
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+        min-height: 48px;
+        font-size: 18px;
+      }
+
+      label {
+        font-size: 16px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+      }
+
+      .stage {
+        height: 60vh;
+      }
+
+      .script {
+        padding: 25vh 7vw 30vh;
+        font-size: 30px;
+        line-height: 1.5;
+      }
+
+      .hint {
+        font-size: 14px;
+      }
+
+      .top-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .panel {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      textarea {
+        height: 26vh;
+        font-size: 18px;
+      }
+
+      .stage {
+        height: 58vh;
+        border-radius: 10px;
+      }
+
+      .script {
+        padding: 22vh 6vw 28vh;
+        font-size: 26px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="panel left">
-      <h1>teleprompt-v1</h1>
+      <div class="top-row">
+        <h1>teleprompt-v1</h1>
 
-      <textarea id="scriptInput">Hola, Leo. Pues, si te sirve, pega aquí tu libreto.
+        <div class="lang-switch">
+          <button class="lang-btn active" id="langEsBtn" type="button">ES</button>
+          <button class="lang-btn" id="langEnBtn" type="button">EN</button>
+        </div>
+      </div>
 
-Esta es la versión uno.
-Sencilla.
-Útil de verdad.
-Montada en GitHub Pages.
-        ~~ Dimitry S. ;-)
-      
-      </textarea>
+      <textarea id="scriptInput"></textarea>
 
       <div class="controls">
         <div class="button-row">
-          <button id="toggleBtn">Iniciar</button>
-          <button id="resetBtn">Reiniciar</button>
-          <button id="fullscreenBtn">Pantalla completa</button>
+          <button id="toggleBtn" type="button">Iniciar</button>
+          <button id="resetBtn" type="button">Reiniciar</button>
+          <button id="fullscreenBtn" type="button">Pantalla completa</button>
         </div>
 
         <label>
-          Velocidad
+          <span id="speedLabel">Velocidad</span>
           <input id="speedInput" type="range" min="25" max="200" value="40">
           <span class="value" id="speedValue">40 px/seg</span>
         </label>
 
         <label>
-          Tamaño de letra
+          <span id="fontLabel">Tamaño de letra</span>
           <input id="fontInput" type="range" min="24" max="72" value="40">
           <span class="value" id="fontValue">40 px</span>
         </label>
       </div>
 
-      <div class="hint">
-        Pega el texto a la izquierda. Lee a la derecha.
+      <div class="hint" id="hintText">
+        Pega el texto arriba. Lee abajo.
       </div>
     </div>
 
@@ -161,6 +273,45 @@ Montada en GitHub Pages.
   </div>
 
   <script>
+    const strings = {
+      es: {
+        htmlLang: 'es',
+        defaultScript: `Hola, Leo. Pues, si te sirve, pega aquí tu libreto.
+
+Esta es la versión uno.
+Sencilla.
+Útil de verdad.
+Montada en GitHub Pages.`,
+        fallbackScript: 'Pega aquí tu texto.',
+        start: 'Iniciar',
+        pause: 'Pausar',
+        reset: 'Reiniciar',
+        fullscreen: 'Pantalla completa',
+        speed: 'Velocidad',
+        speedUnit: 'px/seg',
+        font: 'Tamaño de letra',
+        hint: 'Pega el texto arriba. Lee abajo.'
+      },
+      en: {
+        htmlLang: 'en',
+        defaultScript: `Hi, Leo. If this works well for you, paste your script here.
+
+This is version one.
+Simple.
+Actually useful.
+Hosted on GitHub Pages.`,
+        fallbackScript: 'Paste your text here.',
+        start: 'Start',
+        pause: 'Pause',
+        reset: 'Reset',
+        fullscreen: 'Full screen',
+        speed: 'Speed',
+        speedUnit: 'px/sec',
+        font: 'Font size',
+        hint: 'Paste the text above. Read below.'
+      }
+    };
+
     const scriptInput = document.getElementById('scriptInput');
     const scriptDisplay = document.getElementById('scriptDisplay');
     const stage = document.getElementById('stage');
@@ -171,24 +322,62 @@ Montada en GitHub Pages.
 
     const speedInput = document.getElementById('speedInput');
     const speedValue = document.getElementById('speedValue');
+    const speedLabel = document.getElementById('speedLabel');
 
     const fontInput = document.getElementById('fontInput');
     const fontValue = document.getElementById('fontValue');
+    const fontLabel = document.getElementById('fontLabel');
+
+    const hintText = document.getElementById('hintText');
+
+    const langEsBtn = document.getElementById('langEsBtn');
+    const langEnBtn = document.getElementById('langEnBtn');
 
     let isRunning = false;
     let lastTime = 0;
+    let currentLang = 'es';
+    let hasUserEdited = false;
 
     function updateText() {
-      scriptDisplay.textContent = scriptInput.value || 'Pega aquí tu texto.';
+      const fallback = strings[currentLang].fallbackScript;
+      scriptDisplay.textContent = scriptInput.value || fallback;
     }
 
     function updateSpeed() {
-      speedValue.textContent = speedInput.value + ' px/seg';
+      speedValue.textContent = speedInput.value + ' ' + strings[currentLang].speedUnit;
     }
 
     function updateFont() {
       scriptDisplay.style.fontSize = fontInput.value + 'px';
       fontValue.textContent = fontInput.value + ' px';
+    }
+
+    function updateLanguageUI() {
+      const t = strings[currentLang];
+
+      document.documentElement.lang = t.htmlLang;
+      toggleBtn.textContent = isRunning ? t.pause : t.start;
+      resetBtn.textContent = t.reset;
+      fullscreenBtn.textContent = t.fullscreen;
+      speedLabel.textContent = t.speed;
+      fontLabel.textContent = t.font;
+      hintText.textContent = t.hint;
+
+      langEsBtn.classList.toggle('active', currentLang === 'es');
+      langEnBtn.classList.toggle('active', currentLang === 'en');
+
+      if (!hasUserEdited || !scriptInput.value.trim()) {
+        scriptInput.value = t.defaultScript;
+      }
+
+      updateText();
+      updateSpeed();
+      updateFont();
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      updateLanguageUI();
     }
 
     function tick(timestamp) {
@@ -214,14 +403,14 @@ Montada en GitHub Pages.
       if (isRunning) return;
       isRunning = true;
       lastTime = 0;
-      toggleBtn.textContent = 'Pausar';
+      toggleBtn.textContent = strings[currentLang].pause;
       requestAnimationFrame(tick);
     }
 
     function pauseScrolling() {
       isRunning = false;
       lastTime = 0;
-      toggleBtn.textContent = 'Iniciar';
+      toggleBtn.textContent = strings[currentLang].start;
     }
 
     function resetScrolling() {
@@ -237,7 +426,11 @@ Montada en GitHub Pages.
       }
     }
 
-    scriptInput.addEventListener('input', updateText);
+    scriptInput.addEventListener('input', () => {
+      hasUserEdited = true;
+      updateText();
+    });
+
     speedInput.addEventListener('input', updateSpeed);
     fontInput.addEventListener('input', updateFont);
 
@@ -252,9 +445,10 @@ Montada en GitHub Pages.
     resetBtn.addEventListener('click', resetScrolling);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-    updateText();
-    updateSpeed();
-    updateFont();
+    langEsBtn.addEventListener('click', () => setLanguage('es'));
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+
+    updateLanguageUI();
   </script>
 </body>
 </html>
